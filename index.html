@@ -128,22 +128,18 @@
         let exercises = JSON.parse(localStorage.getItem('exercises')) || [];
 
         function addExercise() {
-            let name = document.getElementById('exerciseName').value;
+            let name = document.getElementById('exerciseName').value.trim();
             let imageInput = document.getElementById('exerciseImage');
             let file = imageInput.files[0];
             
             if (name === '' || !file) return;
-
+            
             let reader = new FileReader();
             reader.onload = function(event) {
-                let newExercise = { name: name, image: event.target.result, completed: false };
-
-                exercises.push(newExercise);
+                exercises.push({ id: Date.now(), name: name, image: event.target.result, completed: false });
                 localStorage.setItem('exercises', JSON.stringify(exercises));
-                
                 document.getElementById('exerciseName').value = '';
                 imageInput.value = '';
-                
                 document.getElementById('exerciseForm').style.display = 'none';
                 renderExercises();
             };
