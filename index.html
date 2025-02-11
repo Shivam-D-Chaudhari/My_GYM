@@ -89,6 +89,10 @@
             margin-top: 20px;
             animation: fadeIn 1s ease-in-out;
         }
+        #resetButton {
+            display: none;
+            margin-top: 10px;
+        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -121,14 +125,16 @@
             <button onclick="addExercise()">+ Add Exercise</button>
         </div>
         <div id="exerciseList"></div>
+        <button id="resetButton" onclick="resetCompletedExercises()">Reset Completed</button>
         <p id="congratsMessage">🎉 Congratulations! You've completed all exercises! 🎉</p>
     </div>
     <button class="floating-add-btn" onclick="showExerciseForm()">+</button>
+    
     <script>
         let exercises = JSON.parse(localStorage.getItem('exercises')) || [];
 
         function addExercise() {
-            let name = document.getElementById('exerciseName').value.trim();
+            let name = document.getElementById('exerciseName').value;
             let imageInput = document.getElementById('exerciseImage');
             let file = imageInput.files[0];
             
@@ -136,7 +142,7 @@
             
             let reader = new FileReader();
             reader.onload = function(event) {
-                exercises.push({ id: Date.now(), name: name, image: event.target.result, completed: false });
+                exercises.push({ name: name, image: event.target.result, completed: false });
                 localStorage.setItem('exercises', JSON.stringify(exercises));
                 document.getElementById('exerciseName').value = '';
                 imageInput.value = '';
@@ -149,13 +155,14 @@
         function renderExercises() {
             let list = document.getElementById('exerciseList');
             list.innerHTML = '';
-            
+
             if (exercises.length === 0) {
                 document.getElementById('exerciseForm').style.display = 'block';
                 document.getElementById('congratsMessage').style.display = 'none';
+                document.getElementById('resetButton').style.display = 'none';
                 return;
             }
-            
+
             exercises.forEach((exercise, index) => {
                 let div = document.createElement('div');
                 div.classList.add('exercise');
@@ -169,6 +176,7 @@
                 `;
                 list.appendChild(div);
             });
+
             checkCompletion();
         }
 
@@ -184,8 +192,28 @@
             renderExercises();
         }
 
+        function resetCompletedExercises() {
+            exercises.forEach(ex => ex.completed = false);
+            localStorage.setItem('exercises', JSON.stringify(exercises));
+            document.getElementById('congratsMessage').style.display = 'none';
+            renderExercises();
+        }
+
         function checkCompletion() {
-            document.getElementById('congratsMessage').style.display = exercises.length > 0 && exercises.every(ex => ex.completed) ? 'block' : 'none';
+            let completedTasks = exercises.filter(ex => ex.completed).length;
+            let resetButton = document.getElementById('resetButton');
+            
+            if (completedTasks > 0) {
+                resetButton.style.display = 'block';
+            } else {
+                resetButton.style.display = 'none';
+            }
+
+            if (exercises.length > 0 && exercises.every(ex => ex.completed)) {
+                document.getElementById('congratsMessage').style.display = 'block';
+            } else {
+                document.getElementById('congratsMessage').style.display = 'none';
+            }
         }
 
         function showExerciseForm() {
