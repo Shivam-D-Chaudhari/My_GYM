@@ -133,13 +133,17 @@
             let file = imageInput.files[0];
             
             if (name === '' || !file) return;
-            
+
             let reader = new FileReader();
             reader.onload = function(event) {
-                exercises.push({ name: name, image: event.target.result, completed: false });
+                let newExercise = { name: name, image: event.target.result, completed: false };
+
+                exercises.push(newExercise);
                 localStorage.setItem('exercises', JSON.stringify(exercises));
+                
                 document.getElementById('exerciseName').value = '';
                 imageInput.value = '';
+                
                 document.getElementById('exerciseForm').style.display = 'none';
                 renderExercises();
             };
